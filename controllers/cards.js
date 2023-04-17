@@ -34,7 +34,7 @@ module.exports.deleteCard = (req, res) => {
       res.send(card)
     })
     .catch(err => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === "CastError") {
         res.status(BAD_REQUEST).send({ message: "Переданы некорректные данные при удалении карточки." })
       } else {
         res.status(INTERNTAL_SERVER_ERROR).send({ message: "Произошла ошибка." })
