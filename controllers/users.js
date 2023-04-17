@@ -50,3 +50,25 @@ module.exports.getUserById = (req, res, next) => {
     .catch(err => console.log(err))
   next();
 }
+
+module.exports.updateUserInfo = (req, res, next) => {
+  const { name, about } = req.body;
+  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
+    .then((user) => {
+      if (!user) {
+        console.log(`тут ошибка!`)
+      } else {
+        res.status(200).send(user)
+      }
+    })
+    .catch(err => next(err))
+}
+
+module.exports.updateUserAvatar = (req, res, next) => {
+  const { avatar } = req.body;
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
+    .then((avatar) => {
+      res.status(200).send(avatar)
+    })
+    .catch(err => next(err))
+}
