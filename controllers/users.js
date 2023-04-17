@@ -3,7 +3,7 @@ const BadRequest = require('../errors/BadRequest');
 const NotFound = require('../errors/NotFound');
 const InternalServerError = require('../errors/InternalServerError');
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
     .then((user) => {
@@ -11,9 +11,9 @@ module.exports.createUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequest('Переданы некорректные данные при создании пользователя.');
+        next( new BadRequest('Переданы некорректные данные при создании пользователя.'));
       } else {
-        throw new InternalServerError('Произошла ошибка');
+        next( new InternalServerError('Произошла ошибка'));
       }
     })
 }
