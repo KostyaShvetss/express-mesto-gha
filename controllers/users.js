@@ -1,20 +1,7 @@
 const User = require('../models/user');
-
-// переделать ошибки !!!!!!!!!!
-const BAD_REQUEST = {
-  status: 400,
-  message: "Произошла ошибка."
-}
-
-const INTERNAL_SERVER_ERROR = {
-  status: 500,
-  message: "Переданы некорректные данные при создании пользователя."
-}
-
-const NOT_FOUND = {
-  status: 404,
-  message: "Пользователь по указанному _id не найден."
-}
+const BadRequest = require('../errors/BadRequest');
+const NotFound = require('../errors/NotFound');
+const InternalServerError = require('../errors/InternalServerError');
 
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
@@ -24,9 +11,9 @@ module.exports.createUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST.status).send({ message: BAD_REQUEST.message });
+        throw new BadRequest('Переданы некорректные данные при создании пользователя.');
       } else {
-        res.status(INTERNAL_SERVER_ERROR.status).send({ message: INTERNAL_SERVER_ERROR.message })
+        throw new InternalServerError('Произошла ошибка');
       }
     })
 }
@@ -41,13 +28,19 @@ module.exports.getUserById = (req, res, next) => {
   const userId = req.params.id;
   User.findById(userId)
     .then((user) => {
-      console.log('4:', user);
       if (!user) {
-        res.status(NOT_FOUND.status).send({ message: NOT_FOUND.message })
+        throw new NotFound('Пользователь по указанному _id не найден.');
       }
       res.send(user);
     })
-    .catch(err => console.log(err))
+    .catch(err => {
+      if (err.name === "CastError") {
+        next(new BadRequest('Переданы некорректные данные пользователя.'))
+      }
+      else {
+        next(new InternalServerError('Произошла ошибка'))
+      }
+    })
   next();
 }
 
@@ -56,12 +49,18 @@ module.exports.updateUserInfo = (req, res, next) => {
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        console.log(`тут ошибка!`)
+        throw new NotFound('Пользователь с указанным _id не найден.')
       } else {
         res.status(200).send(user)
       }
     })
-    .catch(err => next(err))
+    .catch(err => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        next(new BadRequest('Переданы некорректные данные при обновлении профиля.'));
+      } else {
+        next(new InternalServerError('Произошла ошибка'))
+      }
+    })
 }
 
 module.exports.updateUserAvatar = (req, res, next) => {
@@ -70,5 +69,11 @@ module.exports.updateUserAvatar = (req, res, next) => {
     .then((avatar) => {
       res.status(200).send(avatar)
     })
-    .catch(err => next(err))
+    .catch(err => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        next(new BadRequest('Переданы некорректные данные при обновлении аватара.'));
+      } else {
+        next(new InternalServerError('Произошла ошибка'))
+      }
+    })
 }
