@@ -25,25 +25,19 @@ module.exports.createCard = (req, res) => {
     });
 };
 
-module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndDelete(req.params.id)
+module.exports.deleteCard = (req, res, next) => {
+  Card.findById(req.params.id)
     .then((card) => {
       if (!card) {
         res.status(errors.NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
       }
-      if (card.owner !== req.user._id) {
-        res.status(400).send({ message: 'Это не ваша карточка' });
+      if (card.owner.toString() === req.user._id) {
+        Card.deleteOne({ _id: req.params.id }).then(res.send(card));
       } else {
-        res.send(card);
+        res.status(400).send({ message: 'Это не ваша карточка' });
       }
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        res.status(errors.BAD_REQUEST).send({ message: 'Переданы некорректные данные при удалении карточки.' });
-      } else {
-        res.status(errors.INTERNTAL_SERVER_ERROR).send({ message: 'Произошла ошибка.' });
-      }
-    });
+    .catch(next);
 };
 
 module.exports.likeCard = (req, res) => {
