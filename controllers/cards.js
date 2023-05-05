@@ -1,14 +1,11 @@
 const Card = require('../models/card');
 const BadRequest = require('../errors/BadRequest'); // 400
-const InternalServerError = require('../errors/InternalServerError'); // 500
 const NotFound = require('../errors/NotFound'); // 404
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send(cards))
-    .catch(() => {
-      next(new InternalServerError('Произошла ошибка.'));
-    });
+    .catch(next);
 };
 
 module.exports.createCard = (req, res, next) => {
@@ -21,9 +18,8 @@ module.exports.createCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequest('Переданы некорректные данные при создании карточки.'));
-      } else {
-        next(new InternalServerError('Произошла ошибка'));
       }
+      next(err);
     });
 };
 
@@ -58,9 +54,8 @@ module.exports.likeCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequest('Переданы некорректные данные для постановки/снятии лайка.'));
-      } else {
-        next(new InternalServerError('Произошла ошибка.'));
       }
+      next(err);
     });
 };
 
@@ -80,8 +75,7 @@ module.exports.dislikeCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequest('Переданы некорректные данные для постановки/снятии лайка.'));
-      } else {
-        next(new InternalServerError('Произошла ошибка.'));
       }
+      next(err);
     });
 };

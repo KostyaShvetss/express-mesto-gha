@@ -2,7 +2,6 @@ const bcrypt = require('bcrypt');
 const jsonwebtoken = require('jsonwebtoken');
 const User = require('../models/user');
 const BadRequest = require('../errors/BadRequest'); // 400
-const InternalServerError = require('../errors/InternalServerError'); // 500
 const NotFound = require('../errors/NotFound'); // 404
 const ConflictError = require('../errors/ConflictError'); // 409
 const Unauthorized = require('../errors/Unauthrorized'); // 401
@@ -22,14 +21,13 @@ module.exports.createUser = (req, res, next) => {
       },
     }))
     .catch((err) => {
-      if (err.code === '11000') {
+      if (err.code === 11000) {
         next(new ConflictError('Пользователь с таким email уже зарегистрирован'));
       }
       if (err.name === 'ValidationError') {
         next(new BadRequest('Переданы некорректные данные при создании пользователя.'));
-      } else {
-        next(new InternalServerError('Произошла ошибка.'));
       }
+      next(err);
     });
 };
 
@@ -93,9 +91,8 @@ module.exports.getUserById = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequest('Переданы некорректные данные пользователя.'));
-      } else {
-        next(new InternalServerError('Произошла ошибка'));
       }
+      next(err);
     });
 };
 
@@ -112,9 +109,8 @@ module.exports.updateUserInfo = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         next(new BadRequest('Переданы некорректные данные при обновлении профиля.'));
-      } else {
-        next(new InternalServerError('Произошла ошибка.'));
       }
+      next(err);
     });
 };
 
@@ -127,8 +123,6 @@ module.exports.updateUserAvatar = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         next(new BadRequest('Переданы некорректные данные при обновлении аватара.'));
-      } else {
-        next(new InternalServerError('Произошла ошибка.'));
-      }
+      } else next(err);
     });
 };
