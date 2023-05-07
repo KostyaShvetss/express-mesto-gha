@@ -4,7 +4,7 @@ const urlRegex = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-
 
 module.exports.getUserByIdValidation = celebrate({
   params: Joi.object({
-    userId: Joi.string().length(24).required(),
+    id: Joi.string().length(24).required(),
   }),
 });
 
@@ -23,7 +23,7 @@ module.exports.updateUserAvatarValidation = celebrate({
 
 module.exports.findCardByIdValidation = celebrate({
   params: Joi.object({
-    cardId: Joi.string().length(24),
+    id: Joi.string().required(),
   }),
 });
 
