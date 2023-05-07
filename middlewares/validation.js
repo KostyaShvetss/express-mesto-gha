@@ -23,7 +23,7 @@ module.exports.updateUserAvatarValidation = celebrate({
 
 module.exports.findCardByIdValidation = celebrate({
   params: Joi.object({
-    id: Joi.string().required(),
+    id: Joi.string().length(24).required(),
   }),
 });
 
