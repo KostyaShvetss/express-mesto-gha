@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 
 const app = express();
 const mongoose = require('mongoose');
+const { errors } = require('celebrate');
 const auth = require('./middlewares/auth');
 const {
   createUserValidation,
@@ -22,6 +23,7 @@ app.post('/signup', createUserValidation, createUser);
 app.use(auth);
 
 app.use(router);
+app.use(errors());
 
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
