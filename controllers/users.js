@@ -13,22 +13,20 @@ module.exports.createUser = (req, res, next) => {
   bcrypt.hash(password, 10).then((hash) => {
     User.create({
       name, about, avatar, email, password: hash,
-    });
-  })
-    .then(() => res.status(201).send({
-      data: {
-        name, about, avatar, email,
-      },
-    }))
-    .catch((err) => {
-      if (err.code === 11000) {
-        next(new ConflictError('Пользователь с таким email уже зарегистрирован'));
-      }
-      if (err.name === 'ValidationError') {
-        next(new BadRequest('Переданы некорректные данные при создании пользователя.'));
-      }
-      next(err);
-    });
+    })
+      .then(() => res.status(201).send({
+        data: {
+          name, about, avatar, email,
+        },
+      }))
+      .catch((error) => {
+        if (error.code === 11000) {
+          next(new ConflictError('Пользователь с таким email уже зарегистрирован'));
+        } else if (error.name === 'ValidationError') {
+          next(new BadRequest('Переданы некорректные данные при создании пользователя.'));
+        } else next(error);
+      });
+  });
 };
 
 module.exports.login = (req, res, next) => {
@@ -38,7 +36,8 @@ module.exports.login = (req, res, next) => {
     .select('+password')
     .then((user) => {
       if (!user) {
-        next(new Unauthorized('Неверная почта или пароль'));
+        next(new BadRequest('Вы вводите неправильные данные'));
+        // next(new Unauthorized('Неверная почта или пароль'));
       }
       return bcrypt.compare(password, user.password).then((matched) => {
         if (!matched) {
