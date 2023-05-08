@@ -36,11 +36,11 @@ module.exports.login = (req, res, next) => {
     .select('+password')
     .then((user) => {
       if (!user) {
-        next(new Unauthorized('Неверная почта или пароль'));
+        return next(new Unauthorized('Неверная почта или пароль'));
       }
       return bcrypt.compare(password, user.password).then((matched) => {
         if (!matched) {
-          next(new Unauthorized('Неверная почта или пароль'));
+          return next(new Unauthorized('Неверная почта или пароль'));
         }
         const token = jsonwebtoken.sign({ _id: user._id }, 'secret-key', {
           expiresIn: '7d',
@@ -66,9 +66,7 @@ module.exports.getCurrentUser = (req, res, next) => {
       res.send(user);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequest('Переданы некорректные данные при создании пользователя.'));
-      } else if (err.message === 'NotFound') {
+      if (err.message === 'NotFound') {
         next(new NotFound('Пользователь не найден'));
       } else {
         next(err);
@@ -89,8 +87,7 @@ module.exports.getUserById = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequest('Переданы некорректные данные пользователя.'));
-      }
-      next(err);
+      } else next(err);
     });
 };
 

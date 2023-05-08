@@ -1,10 +1,10 @@
 const { Joi, celebrate } = require('celebrate');
 
-const urlRegex = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/;
+const urlRegex = require('../utils/constants');
 
 module.exports.getUserByIdValidation = celebrate({
   params: Joi.object({
-    id: Joi.string().length(24).required(),
+    id: Joi.string().hex().length(24).required(),
   }),
 });
 
@@ -17,13 +17,13 @@ module.exports.updateUserInfoValidation = celebrate({
 
 module.exports.updateUserAvatarValidation = celebrate({
   body: Joi.object({
-    avatar: Joi.string().regex(urlRegex),
+    avatar: Joi.string().regex(urlRegex).required(),
   }),
 });
 
 module.exports.findCardByIdValidation = celebrate({
   params: Joi.object({
-    id: Joi.string().length(24).required(),
+    id: Joi.string().hex().length(24).required(),
   }),
 });
 
