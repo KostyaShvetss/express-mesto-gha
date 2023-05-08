@@ -5,23 +5,15 @@ const app = express();
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 const auth = require('./middlewares/auth');
-const {
-  createUserValidation,
-  loginValidation,
-} = require('./middlewares/validation');
 const router = require('./routes');
+const authRouter = require('./routes/auth');
 
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
-const { createUser, login } = require('./controllers/users');
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-app.post('/signin', loginValidation, login);
-app.post('/signup', createUserValidation, createUser);
+app.use(authRouter);
 app.use(auth);
-
 app.use(router);
 app.use(errors());
 
