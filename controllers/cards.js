@@ -1,3 +1,4 @@
+const { Error } = require('mongoose');
 const Card = require('../models/card');
 const BadRequest = require('../errors/BadRequest'); // 400
 const NotFound = require('../errors/NotFound'); // 404
@@ -17,7 +18,7 @@ module.exports.createCard = (req, res, next) => {
       res.status(201).send(card);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof Error.ValidationError) {
         next(new BadRequest('Переданы некорректные данные при создании карточки.'));
       }
       next(err);
@@ -53,7 +54,7 @@ module.exports.likeCard = (req, res, next) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof Error.CastError) {
         next(new BadRequest('Переданы некорректные данные для постановки/снятии лайка.'));
       }
       next(err);
@@ -74,7 +75,7 @@ module.exports.dislikeCard = (req, res, next) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof Error.CastError) {
         next(new BadRequest('Переданы некорректные данные для постановки/снятии лайка.'));
       }
       next(err);

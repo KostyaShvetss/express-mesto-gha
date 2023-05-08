@@ -1,3 +1,4 @@
+const { Error } = require('mongoose');
 const bcrypt = require('bcrypt');
 const jsonwebtoken = require('jsonwebtoken');
 const User = require('../models/user');
@@ -22,7 +23,7 @@ module.exports.createUser = (req, res, next) => {
       .catch((error) => {
         if (error.code === 11000) {
           next(new ConflictError('Пользователь с таким email уже зарегистрирован'));
-        } else if (error.name === 'ValidationError') {
+        } else if (error instanceof Error.ValidationError) {
           next(new BadRequest('Переданы некорректные данные при создании пользователя.'));
         } else next(error);
       });
@@ -102,7 +103,7 @@ module.exports.updateUserInfo = (req, res, next) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
+      if (err instanceof Error.ValidationError || err instanceof Error.CastError) {
         next(new BadRequest('Переданы некорректные данные при обновлении профиля.'));
       }
       next(err);
@@ -116,7 +117,7 @@ module.exports.updateUserAvatar = (req, res, next) => {
       res.send(newAvatar);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
+      if (err instanceof Error.ValidationError || err instanceof Error.CastError) {
         next(new BadRequest('Переданы некорректные данные при обновлении аватара.'));
       } else next(err);
     });
