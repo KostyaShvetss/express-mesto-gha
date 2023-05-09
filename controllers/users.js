@@ -66,13 +66,7 @@ module.exports.getCurrentUser = (req, res, next) => {
       }
       res.send(user);
     })
-    .catch((err) => {
-      if (err.message === 'NotFound') {
-        next(new NotFound('Пользователь не найден'));
-      } else {
-        next(err);
-      }
-    });
+    .catch((err) => next(err));
 };
 
 module.exports.getUserById = (req, res, next) => {
@@ -103,7 +97,7 @@ module.exports.updateUserInfo = (req, res, next) => {
       }
     })
     .catch((err) => {
-      if (err instanceof Error.ValidationError || err instanceof Error.CastError) {
+      if (err instanceof Error.ValidationError) {
         next(new BadRequest('Переданы некорректные данные при обновлении профиля.'));
       }
       next(err);
@@ -114,7 +108,9 @@ module.exports.updateUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .then((newAvatar) => {
-      res.send(newAvatar);
+      if (!newAvatar) {
+        next(new NotFound('Не передан аватар'));
+      } else res.send(newAvatar);
     })
     .catch((err) => {
       if (err instanceof Error.ValidationError || err instanceof Error.CastError) {

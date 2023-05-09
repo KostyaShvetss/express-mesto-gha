@@ -20,8 +20,7 @@ module.exports.createCard = (req, res, next) => {
     .catch((err) => {
       if (err instanceof Error.ValidationError) {
         next(new BadRequest('Переданы некорректные данные при создании карточки.'));
-      }
-      next(err);
+      } else next(err);
     });
 };
 
@@ -32,7 +31,7 @@ module.exports.deleteCard = (req, res, next) => {
         throw new NotFound('Карточка с указанным _id не найдена.');
       }
       if (card.owner.toString() === req.user._id) {
-        Card.deleteOne({ _id: req.params.id }).then(res.status(200).send(card));
+        return Card.deleteOne({ _id: req.params.id }).then(res.status(200).send(card));
       } else {
         throw new Forbidden('Это не ваша карточка');
       }
